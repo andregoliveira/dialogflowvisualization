@@ -276,6 +276,14 @@
             opacity: 0;
         }
 
+        #dialogue-id-dropdown option:hover {
+            background-color: lightgray;
+        }
+        
+        #dialogue-id-dropdown option:checked {
+            background-color: lightblue;
+        }
+
     </style>
 </head>
 <body>
@@ -356,44 +364,19 @@
             let startOccurrences = 0;
             let undefinedActs = []; 
 
-
-
             lines.forEach((line, index) => {
                 const columns = line.split("\t");
                 const currentDialogueID = columns[0]; 
                 const dialogueAct = columns[3];
                 const sentiment = columns[4]; 
-                let color;
 
+                // Undefined dialogue acts
                 if (!dialogueAct) {
-                    undefinedActs.push(index + 1); // Store line numbers where dialogue act is undefined
+                    undefinedActs.push(index + 1);
                 }
 
+                // Create nodes
                 const existingNode = nodes.find(node => node.id === dialogueAct);
-
-                if (index < lines.length - 1) {
-                    const nextDialogueAct = lines[index + 1].split("\t")[3]; 
-                    const nextDialogueID = lines[index + 1].split("\t")[0]; 
-                    if (currentDialogueID !== nextDialogueID) { 
-                        const link = links.find(link => link.source === dialogueAct && link.target === nextDialogueAct);
-                        if (link) {
-                            link.value++;
-                        } else {
-                            links.push({ source: dialogueAct, target: nextDialogueAct, value: 1 });
-                        }
-                        console.log(`Transition: ${dialogueAct} -> ${nextDialogueAct}`);
-                    }
-                }
-
-                if (columns[3] === lines[index + 1]?.split("\t")[3]) { 
-                    const selfLink = links.find(link => link.source === dialogueAct && link.target === dialogueAct);
-                    if (selfLink) {
-                        selfLink.value++; 
-                    } else {
-                        links.push({ source: dialogueAct, target: dialogueAct, value: 1 }); 
-                    }
-                }
-
                 if (!existingNode) {
                     const sentimentCounts = { 'Positive': 0, 'Negative': 0, 'Neutral': 0 };
                     sentimentCounts[sentiment]++;
@@ -403,10 +386,26 @@
                     existingNode.sentimentCounts[sentiment]++;
                 }
 
+                // Create links
+                if (index < lines.length - 1) {
+                    const nextDialogueID = lines[index + 1].split("\t")[0]; 
+                    const nextDialogueAct = lines[index + 1].split("\t")[3]; 
+                    if (currentDialogueID === nextDialogueID) {
+                        const link = links.find(link => link.source === dialogueAct && link.target === nextDialogueAct);
+                        if (link) {
+                            link.value++;
+                        } else {
+                            links.push({ source: dialogueAct, target: nextDialogueAct, value: 1 });
+                        }
+                    }
+                }
+
+                // Count start occurrences
                 if (columns[1] === "0") {
                     startOccurrences++;
                 }
 
+                // Create start and end nodes
                 if (columns[1] === "0") {
                     startNode = { id: "START", occurrences: 1, color: "blue", character: "START" };
                     links.push({ source: "START", target: dialogueAct, value: 1 });
@@ -414,10 +413,9 @@
                     endNode = { id: "END", occurrences: 1, color: "purple", character: "END" };
                     links.push({ source: dialogueAct, target: "END", value: 1 });
                 }
-                
             });
 
-            // After processing all lines, log undefinedActs
+            // Log undefinedActs
             if (undefinedActs.length > 0) {
                 console.log("Lines with undefined dialogue acts:", undefinedActs.join(", "));
             }
@@ -492,23 +490,33 @@
                 option.on("click", () => {
                     const isSelected = option.classed("button-blue");
 
-                    d3.selectAll("#dialogue-id-dropdown option").classed("button-blue", false);
-
-                    d3.select("#associated-content").selectAll(".content").remove();
+                    d3.selectAll("#dialogue-id-dropdown option")
+                        .style("color", "black")
+                        .style("font-weight", "normal");
 
                     if (!isSelected) {
+                        option.style("color", "darkblue")
+                            .style("font-weight", "bold");
+
+                        d3.selectAll("#dialogue-id-dropdown option").classed("button-blue", false);
+
                         option.classed("button-blue", true);
+
+                        d3.select("#associated-content").selectAll(".content").remove();
 
                         const contentContainer = d3.select("#associated-content").append("div").classed("content", true);
                         texts.forEach((text, index) => {
                             const dialogueAct = lines.find(line => line.split("\t")[0] === dialogueId && line.split("\t")[2] === text).split("\t")[3];
                             contentContainer.append("p")
-                                .text(`Text: ${text}, Dialogue Act: ${dialogueAct}`)
+                                .html(`${text}, <b>Dialogue Act:</b> ${dialogueAct}`)
                                 .style("margin-left", "10px");
                         });
 
                         highlightLinks(dialogueId);
                     } else {
+                        option.style("color", "black")
+                            .style("font-weight", "normal");
+
                         option.classed("button-blue", false);
 
                         d3.select("#associated-content").selectAll(".content").remove();
@@ -519,6 +527,7 @@
                     }
                 });
             });
+
 
             function highlightLinks(dialogueId) {
                 d3.selectAll(".link")
@@ -535,7 +544,7 @@
                         return isSelfReferential && isInSelectedDialogue;
                     })
                     .attr("stroke", "darkblue")
-                    .attr("stroke-width", d => d.probability * 16)
+                    .attr("stroke-width", d => 6)
                     .attr("opacity", 1);
 
                 d3.selectAll(".link")
@@ -548,7 +557,7 @@
                         return isTransitionLink && sourceInSelectedDialogue && targetInSelectedDialogue;
                     })
                     .attr("stroke", "darkblue")
-                    .attr("stroke-width", d => d.probability * 16)
+                    .attr("stroke-width", d => 6)
                     .attr("opacity", 1);
 
                 const firstDialogueAct = lines.find(line => line.split("\t")[0] === dialogueId);
@@ -561,8 +570,8 @@
                     .filter(d => d.source.id === 'START' && d.target.id === firstDialogueActId);
 
                 if (!startLink.empty()) {
-                    startLink.attr("stroke", "green") 
-                        .attr("stroke-width", d => d.probability * 16) 
+                    startLink.attr("stroke", "darkblue") 
+                        .attr("stroke-width", d => 6) 
                         .attr("opacity", 1);
                 }
 
@@ -570,8 +579,8 @@
                     .filter(d => d.target.id === 'END' && d.source.id === lastDialogueActId);
 
                 if (!endLink.empty()) {
-                    endLink.attr("stroke", "red") 
-                        .attr("stroke-width", d => d.probability * 16) 
+                    endLink.attr("stroke", "darkblue") 
+                        .attr("stroke-width", d => 6) 
                         .attr("opacity", 1);
                 }
             }
@@ -656,7 +665,7 @@
         //Mouseover to see percentages 
         .on("mouseover", function(event, d) {
             d3.select(this)
-                .attr("stroke-width", d.probability * 20); 
+                .attr("stroke-width", 6); 
             const perc_label = d3.select(".perc_label");
             perc_label.html(`Probability: ${Math.round(d.probability * 100)}%`)
                 .style("left", (event.pageX + 10) + "px")
@@ -711,7 +720,8 @@
             .text(d => d.character)
             .style("font-size", d => `${getFontSize(Math.sqrt(d.occurrences) * 4)}px`)
             .attr("dy", "0.35em") 
-            .style("pointer-events", "none");
+            .style("pointer-events", "none")
+            .style("fill", d => (d.id === "START" || d.id === "END") ? "white" : "black");
 
         
                 simulation.on("tick", () => {
