@@ -322,8 +322,8 @@
                 <span id="min-value">0</span>
                 <span id="max-value">100</span>
                 <br>
-                <span id="current-value">0 - 100</span>
-            </div>      
+                <span id="current-value" contenteditable="true">0 - 100</span>
+            </div>    
         </div>
         
         <div id="container">
@@ -847,42 +847,55 @@
                         .attr("y", d => d.y)
                         .style("font-size", d => `${getFontSize(Math.sqrt(d.occurrences) * 3)}px`);
                 })
-        
-            const slider = document.getElementById('slider');
-            const minValue = document.getElementById("min-value");
-            const maxValue = document.getElementById("max-value");
-            const currentValue = document.getElementById("current-value");
 
-            noUiSlider.create(slider, {
-                start: [0, 100],
-                connect: true,
-                range: {
-                    'min': 0,
-                    'max': 100
-                }
-            });
+                const slider = document.getElementById('slider');
+                const minValue = document.getElementById("min-value");
+                const maxValue = document.getElementById("max-value");
+                const currentValue = document.getElementById("current-value");
 
-            slider.noUiSlider.on('update', function (values, handle) {
-                const handle0 = document.querySelector('.noUi-handle-lower');
-                const handle0Rect = handle0.getBoundingClientRect();
-                minValue.style.left = `${handle0Rect.left}px`;
+                noUiSlider.create(slider, {
+                    start: [0, 100],
+                    connect: true,
+                    range: {
+                        'min': 0,
+                        'max': 100
+                    }
+                });
 
-                const handle1 = document.querySelector('.noUi-handle-upper');
-                const handle1Rect = handle1.getBoundingClientRect();
-                maxValue.style.left = `${handle1Rect.left}px`;
+                slider.noUiSlider.on('update', function (values, handle) {
+                    const handle0 = document.querySelector('.noUi-handle-lower');
+                    const handle0Rect = handle0.getBoundingClientRect();
+                    minValue.style.left = `${handle0Rect.left}px`;
 
-                if (handle === 0) {
-                    minValue.textContent = values[0];
-                } else {
-                    maxValue.textContent = values[1];
-                }
-                currentValue.textContent = values.join(' - ');
+                    const handle1 = document.querySelector('.noUi-handle-upper');
+                    const handle1Rect = handle1.getBoundingClientRect();
+                    maxValue.style.left = `${handle1Rect.left}px`;
 
-                handle0.setAttribute('aria-valuetext', values[0]);
-                handle1.setAttribute('aria-valuetext', values[1]);
-            });
+                    if (handle === 0) {
+                        minValue.textContent = values[0];
+                    } else {
+                        maxValue.textContent = values[1];
+                    }
+                    currentValue.textContent = values.join(' - ');
 
-            slider.noUiSlider.on('change', updateLinksOpacity);
+                    handle0.setAttribute('aria-valuetext', values[0]);
+                    handle1.setAttribute('aria-valuetext', values[1]);
+                });
+
+                currentValue.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();  // Prevent the default action of the Enter key
+                        const values = currentValue.textContent.split(' - ').map(value => parseFloat(value.trim()));
+                        if (values.length === 2 && !isNaN(values[0]) && !isNaN(values[1])) {
+                            slider.noUiSlider.set(values);
+                            updateLinksOpacity();  // Call the updateLinksOpacity function after setting the slider values
+                        } else {
+                            alert('Please enter valid numbers in the format "min - max"');
+                        }
+                    }
+                });
+
+                slider.noUiSlider.on('change', updateLinksOpacity);
 
             function updateLinksOpacity() {
                 const minValue = parseInt(slider.noUiSlider.get()[0]) / 100;
