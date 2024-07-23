@@ -89,16 +89,17 @@ body, html {
   }
 
   .svg-container {
-    
-      position: relative;
-      margin-top: 200px;
-      margin-bottom: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex;
-      padding-left: 30px;
-      padding-right: 30px;
-  }
+    width: 50%;
+    position: relative;
+    margin-top: 60px; 
+    margin-bottom: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 30px;
+    padding-right: 30px;
+    overflow-x: auto;
+}
 
   .buttons-container {
       width: 200px;
@@ -156,18 +157,21 @@ body, html {
 
   .column-titles-container {
     display: flex;
-    position: absolute;
-    top: -40px;
-    left: 0;
-    width: 100%; 
-  }
+    position: absolute; 
+    width: 100%;
+    padding: 0 10px; 
+    box-sizing: border-box;
+}
 
-  .column-title {
+
+.column-title {
     flex: 1;
     text-align: center;
     font-weight: bold;
     font-size: 90%;
-  }
+    color: black;
+    margin-bottom: 20px; 
+}
 
   .button {
       margin-bottom: 10px;
@@ -194,34 +198,6 @@ body, html {
   .button-orange {
       background-color: orange;
   }
-
-  /* Responsive design for smaller screens */
-@media (max-width: 768px) {
-    #container {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .dataset-container {
-        margin: 0;
-        width: 100%;
-        margin-left: 200px;
-
-    }
-
-    .buttons-container {
-        margin: 0;
-        width: 100%;
-        margin-right: 200px;
-
-    }
-    .svg-container {
-        margin-top: 20px;
-        margin-bottom: 20px;
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-}
 
 </style>
 <body>
@@ -735,7 +711,6 @@ var link = svg.append("g").selectAll(".link")
 link.append("title")
     .text(function (d) { return d.source.name + " → " + d.target.name + "\n" + format(d.value); });
 
-/*color assign*/
 var emotionColorScale = d3.scaleOrdinal()
     .domain(["Positive", "Negative", "Neutral"])
     .range(["green", "red", "orange"]);
@@ -751,11 +726,9 @@ function getRandomColor() {
 
 var emotionColors = {};
 
-// Collect all unique emotions and assign colors
 graph.nodes.forEach(function(d) {
     Object.keys(d.emotions).forEach(function(emotion) {
         if (!(emotion in emotionColors)) {
-            // Assign a color to each unique emotion
             if (emotionColorScale.domain().includes(emotion)) {
                 emotionColors[emotion] = emotionColorScale(emotion);
             } else {
@@ -765,13 +738,11 @@ graph.nodes.forEach(function(d) {
     });
 });
 
-// Determine and store the color for each main emotion
 var mainEmotions = {};
 graph.nodes.forEach(function(d) {
     var maxPercentage = -1;
     var mainEmotion = null;
 
-    // Find the main emotion
     Object.keys(d.emotions).forEach(function(emotion) {
         var percentage = d.emotions[emotion];
         if (percentage > maxPercentage) {
@@ -780,7 +751,6 @@ graph.nodes.forEach(function(d) {
         }
     });
 
-    // Assign color to the main emotion
     if (mainEmotion) {
         mainEmotions[mainEmotion] = {
             color: emotionColors[mainEmotion]
@@ -813,7 +783,6 @@ node.append("rect")
             }
         });
 
-        // Return color for the main emotion, or a default color if none is found
         return (mainEmotion && emotionColors[mainEmotion]) ? emotionColors[mainEmotion] : 'grey';
     })
     .style("stroke", function (d) {
@@ -828,11 +797,10 @@ node.append("rect")
             }
         });
 
-        // Return a darker shade of the color for the main emotion
         if (mainEmotion && emotionColors[mainEmotion]) {
             return d3.rgb(emotionColors[mainEmotion]).darker(2);
         } else {
-            return 'black'; // Default stroke color if no main emotion
+            return 'black'; 
         }
     });
 
@@ -898,7 +866,6 @@ Object.keys(dialogueIds).forEach(function(dialogueId) {
             var dialogueText = dialogue.message + " <strong>Dialogue Act:</strong> " + dialogue.dialogueAct;
             var p = document.createElement("p");
             p.innerHTML = dialogueText;
-            // Use color based on emotion
             if (mainEmotions[dialogue.emotion]) {
                 p.style.backgroundColor = mainEmotions[dialogue.emotion].color;
             } else if (emotionColors[dialogue.emotion]) {
@@ -925,13 +892,7 @@ const columnTitleContainer = d3.select("#column-titles");
 
 columnTitleContainer.selectAll("*").remove();
 
-for (let i = 0; i < numColumns; i++) {
-    columnTitleContainer
-        .append("div")
-        .attr("class", "column-title")
-        .style("left", (i * (width / numColumns)) + "px") 
-        .text("Message " + (i + 1));
-}
+
 
 document.getElementById('sentiments-button').addEventListener('click', function() {
     const dropdown = document.getElementById('sentiments-dropdown');
@@ -947,7 +908,6 @@ document.getElementById('sentiments-button').addEventListener('click', function(
             const button = document.createElement('button');
             button.textContent = emotion;
             button.className = 'button button-dropdown';
-            // Set button color based on emotion
             if (mainEmotions[emotion]) {
                 button.style.backgroundColor = mainEmotions[emotion].color;
             } else if (emotionColors[emotion]) {
@@ -959,7 +919,6 @@ document.getElementById('sentiments-button').addEventListener('click', function(
 });
 
 
-/*colors assign*/
 
   const helpButton = document.getElementById("help-button");
   const helpDropdown = document.getElementById("help-dropdown");
