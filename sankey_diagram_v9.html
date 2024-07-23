@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>SANKEY Experiment</title>
+<title>Dialog Path - Sankey Diagram</title>
 <style>
 
 body, html {
@@ -24,6 +24,7 @@ body, html {
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 100%;
         }
        
         #main-content {
@@ -60,6 +61,7 @@ body, html {
   .node text {
     pointer-events: none;
     text-shadow: 0 1px 0 #fff;
+    font-size: 14px;
   }
   .link {
     fill: none;
@@ -87,17 +89,15 @@ body, html {
   }
 
   .svg-container {
+    
       position: relative;
       margin-top: 200px;
       margin-bottom: 200px;
       display: flex;
       flex-direction: column;
       align-items: flex;
-  }
-
-  .svg-container {
-    padding-left: 30px;
-    padding-right: 30px;
+      padding-left: 30px;
+      padding-right: 30px;
   }
 
   .buttons-container {
@@ -166,6 +166,7 @@ body, html {
     flex: 1;
     text-align: center;
     font-weight: bold;
+    font-size: 90%;
   }
 
   .button {
@@ -194,6 +195,26 @@ body, html {
       background-color: orange;
   }
 
+  /* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    #container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .buttons-container, .dataset-container {
+        margin: 0;
+        width: 100%;
+    }
+
+    .svg-container {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
 </style>
 <body>
   <div id="opening-container" style="display: flex; flex-direction: column; align-items: center;">
@@ -207,7 +228,7 @@ body, html {
   <div id="container">
     <div class="dataset-container">
         <input type="file" id="fileInput" accept=".tsv" style="display: none;">
-        <button class="upload-button" onclick="window.location.href='index.html'">Home</button>
+        <button class="upload-button" onclick="window.location.href='graph_based_v20.html'">Change to Graph</button>
         <button class="dialogues-button">Dialogues</button>
         <div class="search-container">
           <input type="text" id="searchInput" class="search-input" placeholder="Search dialogues...">
@@ -219,7 +240,7 @@ body, html {
     </div>
 
     <div class="svg-container">
-      <div id="column-titles" class="column-titles-container"></div>
+      <div id="column-titles" class="column-titles-container" ></div>
       <svg class="svg"></svg>
   </div>
   <div class="buttons-container">

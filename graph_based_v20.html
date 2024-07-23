@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D3.js Mastodon Graph Visualization</title>
+    <title>Dialog Path - Graph</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css" rel="stylesheet">
     <style>
@@ -77,7 +77,8 @@
         }
 
         .svg-container {
-            width: 1000px;
+            width: 50%;
+            width: 50%;
             position: relative;
             margin-top: 200px;
             margin-bottom: 200px;
@@ -210,12 +211,11 @@
             padding: 10px 0;
             width: 100%; 
             z-index: 1000; 
-            background-color: #fff;
             border-radius: 5px;
         }
 
         #slider {
-            width: 80%; 
+            width: 60%; 
             background-color: orange;
             margin: 0 auto; 
         }
@@ -329,7 +329,7 @@
         <div id="container">
             <div class="dataset-container">
                 <input type="file" id="fileInput" accept=".tsv" style="display: none;">
-                <button class="upload-button" onclick="window.location.href='index.html'">Home</button>
+                <button class="upload-button" onclick="window.location.href='sankey_diagram_v9.html'">Change to Sankey Diagram</button>
                 <button class="dialogues-button">Dialogues</button>
                 <div class="search-container">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search dialogues...">
@@ -341,7 +341,7 @@
             </div>
         
             <div class="svg-container">
-                <svg width="1000" height="800"></svg>
+                <svg></svg>
                 <div class="perc_label"></div>
                 <div id="tooltip" class="tooltip"></div>
             </div>
